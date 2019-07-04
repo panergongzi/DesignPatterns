@@ -1,0 +1,114 @@
+<script>
+    /* 使用原型模拟类的继承 
+    创建Beverage基类，并将基本结构封装好，
+    BeverageTea，BeverageCoffee类原型通过绑定Beverage原型从而
+    能适应Beverage类的方法，如果BeverageTea，BeverageCoffee类声明了同名方法
+    就会覆盖Beverage类的方法，从而达到多态效果。
+    */
+    var model1 = (function () {
+        var Beverage = function () { }
+        Beverage.prototype.boilWater = function () {
+        }
+        Beverage.prototype.brew = function () {
+        }
+        Beverage.prototype.pourInCup = function () { }
+        Beverage.prototype.addCondiments = function () { }
+        //加入钩子函数，判断是否需要调料
+        Beverage.prototype.isAddCondiments = function () {
+            return true;
+        }
+        Beverage.prototype.init = function () {
+            this.boilWater();
+            this.brew();
+            this.pourInCup();
+            if (this.isAddCondiments()) {
+                this.addCondiments();
+            }
+        }
+        /* 茶 */
+        var BeverageTea = function () { };
+        BeverageTea.prototype = Object.create(Beverage.prototype)
+        BeverageTea.prototype.brew = function () {
+            console.log('泡茶')
+        }
+        BeverageTea.prototype.addCondiments = function () {
+            console.log('加入柠檬')
+        }
+        BeverageTea.prototype.isAddCondiments = function () {
+            return true
+        }
+        var tea = new BeverageTea();
+        tea.init();
+        /* 咖啡 */
+        var BeverageCoffee = function () { };
+        BeverageCoffee.prototype = Object.create(Beverage.prototype);
+        BeverageCoffee.prototype.brew = function () {
+            console.log('用沸水冲泡')
+        }
+        BeverageCoffee.prototype.pourInCup = function () {
+            console.log('将咖啡倒入杯中')
+        }
+        BeverageCoffee.prototype.addCondiments = function () {
+            console.log('加入牛奶和糖')
+        }
+        var coffee = new BeverageCoffee();
+        coffee.init();
+    }())
+    /* 使用高阶函数模仿模板类 
+    先用闭包形式声明一个函数，返回一个构造函数，构造函数的属性方法由
+    传进来来的参数parem定义或者给出默认方法。
+    这样每次调用这个闭包函数去初始化其他对象时候，就会返回构造函数的形式，
+    从而达到模仿模板类的效果
+    */
+    var model2 = (function () {
+        var Beverage = function (parem) {
+            var boilWater = function () {
+                console.log('把水煮沸')
+            }
+            var brew = parem.brew || function () {
+
+            }
+            var pourInCup = parem.pourInCup || function () {
+
+            }
+            var addCondiments = parem.addCondiments || function () {
+
+            }
+            var F = function () { }
+            F.prototype.init = function () {
+                boilWater();
+                brew();
+                pourInCup();
+                addCondiments()
+            }
+            return F;
+        }
+        var Coffee = Beverage({
+            brew: function () {
+                console.log('沸水冲泡咖啡1111111111111111111111')
+            },
+            pourInCup: function () {
+                console.log('咖啡倒进杯子里')
+            },
+            addCondiments: function () {
+                console.log('加入牛奶和糖')
+            }
+        })
+        var coffee = new Coffee();
+        coffee.init();
+        var Tea = Beverage({
+            brew: function () {
+                console.log('沸水冲泡茶')
+            },
+            pourInCup: function () {
+                console.log('茶倒进杯子里')
+            },
+            addCondiments: function () {
+                console.log('加入柠檬')
+            }
+        })
+        var tea=new Tea();
+        tea.init();
+    }())
+
+</script>

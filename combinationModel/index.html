@@ -1,0 +1,42 @@
+<script>
+    /* 
+    创建文件夹类Folder
+    创建文件类File
+    通过调用Folder类的add方法添加文件夹
+    通过调用File类的add方法添加文件
+    通过Folder和File的scan方法扫描每个实例的文件名称
+     */
+    var Folder = function (name) {
+        this.name = name;
+        this.files = [];
+    }
+    Folder.prototype.add = function (file) {
+        this.files.push(file)
+    }
+    Folder.prototype.scan = function () {
+        console.log('文件夹名称:' + this.name);
+        for (var i = 0, file, files = this.files; file = files[i++];) {
+            file.scan()
+        }
+    }
+    var File = function (name) {
+        this.name = name;
+    }
+    File.prototype.add = function () {
+        throw new Error('文件下面不能添加文件')
+    }
+    File.prototype.scan=function(){
+        console.log('文件名称：'+this.name)
+    }
+    var folder1=new Folder('java');
+    var file1=new File('java虚拟机');
+    folder1.add(file1);
+   var folder2=new Folder('javascript');
+   var file2=new File('javascript高级程序设计');
+   folder2.add(file2);
+   var folder=new Folder('书籍');
+   folder.add(folder1);
+   folder.add(folder2);
+   folder.scan();
+
+</script>

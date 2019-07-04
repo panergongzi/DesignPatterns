@@ -1,0 +1,142 @@
+<script>
+    /* 发布-订阅者模式实现的步骤
+    1.指定好谁充当发布者
+    2.给发布者添加一个缓存列表，用于存放回调函数以便通知订阅者
+    3.最后发布消息的时候，遍历缓存列表，依次执行回调函数
+     */
+    //  一个简单的发布-订阅模式
+    var model1 = (function () {
+        var saleOffices = {};
+        saleOffices.clientList = [];
+        saleOffices.listen = function (fn) {
+            this.clientList.push(fn)
+        }
+        saleOffices.trigger = function () {
+            for (var i = 0, fn; fn = this.clientList[i++];) {
+                fn.apply(this, arguments)
+            }
+        }
+        // 小明
+        var XiaoMing = function (price, squareMeter) {
+            console.log('价格:' + price);
+            console.log('面积:' + squareMeter);
+        };
+        saleOffices.listen(XiaoMing);
+        // 小红
+        var XiaoHong = function (price, squareMeter) {
+            console.log('价格:' + price);
+            console.log('面积:' + squareMeter);
+        };
+        saleOffices.listen(XiaoHong);
+        // 发布第一条消息
+        saleOffices.trigger('10w', '200平方米');
+        // 发布第二条消息
+        saleOffices.trigger('30w', '500平方米');
+    }())
+    //  一个简单的发布-订阅模式，通过监听listen key来绑定订阅者
+    var model2 = (function () {
+        var saleOffices = {};
+        saleOffices.clientList = {};
+        saleOffices.listen = function (key, fn) {
+            if (!this.clientList[key]) {
+                this.clientList[key] = [];
+            }
+            this.clientList[key].push(fn);
+        }
+        saleOffices.trigger = function () {
+            var arg = arguments;
+            var key = Array.from(arg)[0];
+            fns = this.clientList[key];
+            // 如果当前类型下面没有订阅者，就直接返回
+            if (!fns || fns.listen === 0) {
+                return false;
+            }
+            for (var i = 0, fn; fn = fns[i++];) {
+                fn.apply(this, arguments)
+            }
+        }
+        // 小明
+        var XiaoMing = function (price, squareMeter) {
+            console.log('小明价格:' + price);
+            console.log('小明面积:' + squareMeter);
+        };
+        saleOffices.listen('10w', XiaoMing);
+        // // 小红
+        var XiaoHong = function (price, squareMeter) {
+            console.log('小红价格:' + price);
+            console.log('小红面积:' + squareMeter);
+        };
+        saleOffices.listen('20w', XiaoHong);
+        // 小张
+        var XiaoZhang = function (price, squareMeter) {
+            console.log('小张价格:' + price);
+            console.log('小张面积:' + squareMeter);
+        };
+        saleOffices.listen('20w', XiaoZhang);
+        // // 发布第一条消息
+        saleOffices.trigger('20w', 'model2：2000平方米');
+        // 发布第二条消息
+        saleOffices.trigger('10w', 'model2：500平方米');
+    }())
+    //将发布-订阅功能提取出来
+    var model3 = (function () {
+        var event = {
+            clientList: {},
+            listen: function (key, fn) {
+                if (!this.clientList[key]) {
+                    this.clientList[key] = []
+                }
+                this.clientList[key].push(fn)
+            },
+            trigger: function () {
+                var key = Array.from(arguments)[0];
+                fns = this.clientList[key];
+                if (!fns || fns.length === 0) {
+                    return
+                }
+                for (var i = 0, fn; fn = fns[i++];) {
+                    fn.apply(this, arguments)
+                }
+            },
+            remove: function (key, fn) {
+                var fns = this.clientList[key];
+                if (!fns) {
+                    return false
+                }
+                if (!fn) {
+                    fns && (fns.length = 0)
+                } else {
+                    for (var i = 0; i < fns.length; i++) {
+                        if (fn === fns[i]) {
+                            fns.splice(i, 1)
+                        }
+                    }
+                }
+            }
+        }
+        // 定义一个包装函数
+        var setEvent = function (ob) {
+            for (var item in event) {
+                ob[item] = event[item]
+            }
+        }
+        // 将售楼处对象包装成订阅-发布对象
+        var saleOffices = {};
+        setEvent(saleOffices);
+
+        //小明
+        var XiaoMing = function (price, saleOffices) {
+            console.log('价格' + price + '小明面积是多少:' + saleOffices)
+        }
+        saleOffices.listen('20w', XiaoMing);
+        //小红
+        var XiaoHong = function (price, saleOffices) {
+            console.log('价格' + price + '小红面积是多少:' + saleOffices)
+        }
+        saleOffices.listen('10w', XiaoHong);
+        saleOffices.remove('10w', XiaoHong);
+        saleOffices.trigger('10w', '50万平米');
+        saleOffices.trigger('20w', '100万平米');
+
+    }())
+</script>
